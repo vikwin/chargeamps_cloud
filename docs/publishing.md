@@ -14,7 +14,8 @@ repository visibility**.
 - Topics: `home-assistant`, `hacs`, `chargeamps`, `ev-charging`, `energy`
 - Keep Issues enabled.
 
-HACS uses the repository description in the store.
+HACS uses the repository description in the store. The HACS Action checks the
+description, topics, license, and issues setting.
 
 ## 3. Make CI green
 
@@ -25,8 +26,9 @@ All workflows in `.github/workflows/ci.yml` must pass:
 - `hassfest`
 - HACS Action
 
-The HACS Action requires a public repository. It is expected to fail while the
-repository is private.
+The HACS Action requires a public repository, so the `hacs` CI job is skipped
+while the repository is private. It runs automatically after you make the
+repository public.
 
 ## 4. Create a release
 
