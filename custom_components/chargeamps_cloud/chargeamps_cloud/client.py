@@ -364,7 +364,12 @@ class ChargeAmpsClient:
 
     async def get_organisations(self) -> list[Organisation]:
         try:
-            payload = await self._request("GET", "organisations", expected_status=(401, 403, 404))
+            payload = await self._request(
+                "GET",
+                "organisations",
+                expected_status=(401, 403, 404),
+                retry_auth=False,
+            )
         except (ChargeAmpsAuthError, ChargeAmpsForbiddenError, ChargeAmpsNotFoundError):
             return []
         return [Organisation.from_api(item) for item in payload or [] if isinstance(item, Mapping)]
