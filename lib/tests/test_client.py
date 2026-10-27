@@ -119,6 +119,7 @@ async def test_remote_start_uses_first_active_tag(api: Any, login_payload: dict[
 async def test_remote_start_can_use_placeholder_tag(api: Any, login_payload: dict[str, Any]) -> None:
     login_payload["user"]["rfidTags"] = []
     url = f"{BASE}/chargepoints/cp-1/connectors/1/remotestart"
+    api.add("GET", f"{BASE}/users/{login_payload['user']['id']}", payload=login_payload["user"])
     api.add("PUT", url, body="")
     async with make_client(api, login_payload) as client:
         start = await client.remote_start("cp-1", 1)

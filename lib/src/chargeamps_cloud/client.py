@@ -100,6 +100,7 @@ class ChargeAmpsClient:
         self._token_expires_at: float = 0
         self._token_lock = asyncio.Lock()
         self._user: User | None = None
+        self._user_tags_loaded = False
         self._discovered_organisation_ids: list[str] | None = None
         self._default_rfid: RfidTag | None = None
 
@@ -162,6 +163,7 @@ class ChargeAmpsClient:
         self._set_token(str(token), str(refresh_token) if refresh_token else None)
         user = payload.get("user")
         self._user = User.from_api(user) if isinstance(user, Mapping) else None
+        self._user_tags_loaded = bool(self._user and self._user.rfid_tags)
         self._default_rfid = None
         _LOGGER.debug("Logged in as %s", self._user.email if self._user else self._email)
         return self._user or User(id="", email=self._email)
@@ -327,6 +329,7 @@ class ChargeAmpsClient:
         user = User.from_api(payload if isinstance(payload, Mapping) else {})
         if self._user and self._user.id == user.id:
             self._user = user
+            self._user_tags_loaded = True
         return user
 
     async def get_current_user(self) -> User:
@@ -345,6 +348,8 @@ class ChargeAmpsClient:
         user = self._user
         if user is None:
             user = await self.get_current_user()
+        if user and not user.rfid_tags and user.id and not self._user_tags_loaded:
+            user = await self.get_user(user.id)
         tag = user.first_active_tag() if user else None
         if tag is None and allow_placeholder:
             tag = RfidTag(active=True, rfid=PLACEHOLDER_RFID)
