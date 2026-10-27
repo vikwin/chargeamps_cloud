@@ -88,7 +88,7 @@ class ChargeAmpsCoordinator(DataUpdateCoordinator[ChargeAmpsData]):
             self._default_rfid = RfidTag(active=True, rfid=str(configured))
             return
         try:
-            self._default_rfid = await self.client.get_default_rfid(allow_virtual=False)
+            self._default_rfid = await self.client.get_default_rfid(allow_placeholder=False)
         except ChargeAmpsError as err:
             _LOGGER.debug("Could not load the default RFID tag: %s", err)
             self._default_rfid = None
@@ -279,7 +279,7 @@ class ChargeAmpsCoordinator(DataUpdateCoordinator[ChargeAmpsData]):
                 rfid=tag,
                 rfid_format=rfid_format or options.get(CONF_RFID_FORMAT) or "Hex",
                 rfid_length=rfid_length or _option_int(options.get(CONF_RFID_LENGTH)),
-                allow_virtual_tag=False,
+                allow_placeholder_tag=False,
             )
         except ChargeAmpsError as err:
             raise HomeAssistantError(f"Could not start charging: {err}") from err

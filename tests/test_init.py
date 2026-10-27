@@ -106,7 +106,7 @@ class FakeClient:
     async def get_charging_session(self, chargepoint_id, session_id):
         return self.session
 
-    async def get_default_rfid(self, allow_virtual=False):
+    async def get_default_rfid(self, allow_placeholder=True):
         return self.user.rfid_tags[0]
 
     async def remote_start(self, *args, **kwargs):
