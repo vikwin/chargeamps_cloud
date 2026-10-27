@@ -73,18 +73,20 @@ class ChargeAmpsConnectorEntity(ChargeAmpsEntity):
             None,
         )
         label = connector.type if connector and connector.type else f"Connector {self._connector_id}"
-        parent = dr.async_get(self.hass).async_get_device_by_identifier(
-            charger_identifier(chargepoint.id),
-            self.coordinator.config_entry.entry_id,
-        )
         device_info = DeviceInfo(
             identifiers={connector_identifier(chargepoint.id, self._connector_id)},
             manufacturer=MANUFACTURER,
             name=f"{chargepoint.label} {label}",
             model=connector.type if connector else None,
         )
-        if parent is not None:
-            device_info["via_device_id"] = parent.id
-        else:
-            device_info["via_device"] = charger_identifier(chargepoint.id)
+        registry = dr.async_get(self.hass)
+        if hasattr(registry, "async_get_device_by_identifier"):
+            parent = registry.async_get_device_by_identifier(
+                charger_identifier(chargepoint.id),
+                self.coordinator.config_entry.entry_id,
+            )
+            if parent is not None:
+                device_info["via_device_id"] = parent.id
+                return device_info
+        device_info["via_device"] = charger_identifier(chargepoint.id)
         return device_info

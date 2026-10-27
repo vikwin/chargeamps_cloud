@@ -22,3 +22,4 @@ configuration.yaml
 home-assistant.log
 .storage/
 .venv-ha/
+.venv-ha313/

@@ -129,8 +129,13 @@ def _resolve_device(hass: HomeAssistant, call: ServiceCall) -> tuple[ChargeAmpsC
             break
     if chargepoint_id is None:
         raise HomeAssistantError("The selected device is not a Charge Amps charge point")
-    entry_id = device.config_entry_id
+    entry_ids: list[str] = []
+    entry_id = getattr(device, "config_entry_id", None)
     if entry_id is not None:
+        entry_ids.append(entry_id)
+    else:
+        entry_ids.extend(device.config_entries)
+    for entry_id in entry_ids:
         entry = hass.config_entries.async_get_entry(entry_id)
         if entry is not None and entry.domain == DOMAIN and entry.runtime_data is not None:
             return entry.runtime_data, chargepoint_id, connector_id

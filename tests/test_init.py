@@ -172,10 +172,12 @@ async def test_services_target_connector(hass, enable_custom_integrations) -> No
         assert await hass.config_entries.async_setup(entry.entry_id)
         await hass.async_block_till_done()
 
-        connector_device = dr.async_get(hass).async_get_device_by_identifier(
-            connector_identifier(CHARGE_POINT_ID, 1),
-            entry.entry_id,
-        )
+        registry = dr.async_get(hass)
+        identifier = connector_identifier(CHARGE_POINT_ID, 1)
+        if hasattr(registry, "async_get_device_by_identifier"):
+            connector_device = registry.async_get_device_by_identifier(identifier, entry.entry_id)
+        else:
+            connector_device = registry.async_get_device(identifiers={identifier})
         assert connector_device is not None
 
         await hass.services.async_call(DOMAIN, "start_charging", {"device_id": connector_device.id}, blocking=True)
