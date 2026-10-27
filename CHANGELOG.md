@@ -2,7 +2,7 @@
 
 ## 0.1.1 - 2026-10-27
 
-First published release.
+Follow-up release with publication and compatibility fixes.
 
 - Compatibility with Home Assistant 2026.2 and newer (device registry APIs)
 - Service definitions fixed for hassfest (`device_id` fields)
