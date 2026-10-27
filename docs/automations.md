@@ -22,7 +22,7 @@ trigger:
     to: "on"
 action:
   - service: chargeamps_cloud.start_charging
-    target:
+    data:
       device_id: 0123456789abcdef0123456789abcdef
 mode: single
 ```
@@ -44,7 +44,7 @@ condition:
     state: home
 action:
   - service: chargeamps_cloud.start_charging
-    target:
+    data:
       device_id: 0123456789abcdef0123456789abcdef
 ```
 
@@ -94,7 +94,7 @@ trigger:
     at: "22:00:00"
 action:
   - service: chargeamps_cloud.set_current
-    target:
+    data:
       device_id: 0123456789abcdef0123456789abcdef
     data:
       current: 6
@@ -111,7 +111,7 @@ trigger:
     for: "00:02:00"
 action:
   - service: chargeamps_cloud.set_current
-    target:
+    data:
       device_id: 0123456789abcdef0123456789abcdef
     data:
       current: 6

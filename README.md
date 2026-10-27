@@ -35,7 +35,9 @@ but are not exposed as Home Assistant entities in this version.
 
 - Home Assistant 2025.1 or newer
 - A Charge Amps account (email and password)
-- An API key for that account
+- An API key for that account. If you do not have one, you can request it from
+  [Charge Amps support](https://www.chargeamps.com/support/). The key is not
+  included in this repository.
 - The charger must be online in the Charge Amps Cloud
 
 ## Installation
@@ -117,20 +119,20 @@ Each charge point becomes a device; each connector becomes a child device.
 
 ## Services
 
-| Service | Target | Fields |
+| Service | Device (`device_id`) | Fields |
 | --- | --- | --- |
-| `chargeamps_cloud.start_charging` | connector device | `rfid`, `rfid_format`, `rfid_length` (all optional) |
-| `chargeamps_cloud.stop_charging` | connector device | – |
-| `chargeamps_cloud.set_mode` | connector device | `mode`: `Off`, `On`, `Schedule` |
-| `chargeamps_cloud.set_current` | connector device | `current`: 6–32 A |
-| `chargeamps_cloud.reboot` | charger device | – |
+| `chargeamps_cloud.start_charging` | connector | `rfid`, `rfid_format`, `rfid_length` (all optional) |
+| `chargeamps_cloud.stop_charging` | connector | – |
+| `chargeamps_cloud.set_mode` | connector | `mode`: `Off`, `On`, `Schedule` |
+| `chargeamps_cloud.set_current` | connector | `current`: 6–32 A |
+| `chargeamps_cloud.reboot` | charger | – |
 | `chargeamps_cloud.refresh` | – | – |
 
 Example:
 
 ```yaml
 service: chargeamps_cloud.start_charging
-target:
+data:
   device_id: 0123456789abcdef0123456789abcdef
 ```
 
@@ -157,7 +159,7 @@ trigger:
     to: "on"
 action:
   - service: chargeamps_cloud.start_charging
-    target:
+    data:
       device_id: 0123456789abcdef0123456789abcdef
 ```
 

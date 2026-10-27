@@ -3,7 +3,9 @@
 ## Setup fails with "invalid auth"
 
 - Check the email and password.
-- Check the API key. It is required and is not included with this project.
+- Check the API key. It is required and is not included with this project. If
+  you do not have a key, request one from
+  [Charge Amps support](https://www.chargeamps.com/support/).
 - Use **Reauthenticate** on the integration entry after changing the password or
   key.
 

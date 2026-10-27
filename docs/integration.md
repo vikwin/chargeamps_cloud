@@ -30,7 +30,9 @@ to the charge point as a child device.
 1. Copy `custom_components/chargeamps_cloud` to the Home Assistant config
    directory.
 2. Restart Home Assistant.
-3. Add the integration and enter email, password, and API key.
+3. Add the integration and enter email, password, and API key. If you do not
+   have an API key, request one from
+   [Charge Amps support](https://www.chargeamps.com/support/).
 4. Optionally open **Configure** to set the poll interval, RFID tag, and tag
    format.
 
@@ -76,8 +78,9 @@ length can be overridden per call.
 
 ## Services
 
-See the root README for the service table. All target-based services expect a
-connector device; **Reboot** expects the charge point device.
+See the root README for the service table. All device-based services expect the
+connector device in the `device_id` field; **Reboot** expects the charge point
+device.
 
 ## Events
 

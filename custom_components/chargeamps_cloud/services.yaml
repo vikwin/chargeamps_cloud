@@ -1,10 +1,14 @@
 start_charging:
   name: Start charging
   description: Start a charging session on a connector using an RFID tag.
-  target:
-    device:
-      integration: chargeamps_cloud
   fields:
+    device_id:
+      name: Connector
+      description: The connector device on which to start charging.
+      required: true
+      selector:
+        device:
+          integration: chargeamps_cloud
     rfid:
       name: RFID tag
       description: Tag in hex format. Defaults to the option value or the first active tag on the account.
@@ -24,45 +28,58 @@ start_charging:
     rfid_length:
       name: RFID length
       description: Length of the tag in bytes.
-      default: 4
+      default: "4"
       selector:
         select:
           options:
-            - 4
-            - 7
-            - 10
+            - "4"
+            - "7"
+            - "10"
 
 stop_charging:
   name: Stop charging
   description: Stop the charging session on a connector.
-  target:
-    device:
-      integration: chargeamps_cloud
+  fields:
+    device_id:
+      name: Connector
+      description: The connector device on which to stop charging.
+      required: true
+      selector:
+        device:
+          integration: chargeamps_cloud
 
 set_mode:
   name: Set charging mode
   description: Set the connector mode to Off, On, or Schedule.
-  target:
-    device:
-      integration: chargeamps_cloud
   fields:
+    device_id:
+      name: Connector
+      description: The connector device whose mode to change.
+      required: true
+      selector:
+        device:
+          integration: chargeamps_cloud
     mode:
       name: Mode
       required: true
       selector:
         select:
           options:
-            - Off
-            - On
-            - Schedule
+            - "Off"
+            - "On"
+            - "Schedule"
 
 set_current:
   name: Set current limit
   description: Set the maximum charging current for a connector.
-  target:
-    device:
-      integration: chargeamps_cloud
   fields:
+    device_id:
+      name: Connector
+      description: The connector device whose current limit to change.
+      required: true
+      selector:
+        device:
+          integration: chargeamps_cloud
     current:
       name: Current
       description: Maximum current in ampere.
@@ -78,9 +95,14 @@ set_current:
 reboot:
   name: Reboot charger
   description: Reboot the charge point.
-  target:
-    device:
-      integration: chargeamps_cloud
+  fields:
+    device_id:
+      name: Charger
+      description: The charge point device to reboot.
+      required: true
+      selector:
+        device:
+          integration: chargeamps_cloud
 
 refresh:
   name: Refresh data

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Connect your Charge Amps account",
-        "description": "Enter the email and password of your Charge Amps account and the API key for that account.",
+        "description": "Enter the email and password of your Charge Amps account and the API key for that account. If you do not have a key, request one from Charge Amps support.",
         "data": {
           "email": "Email",
           "password": "Password",
