@@ -1,0 +1,87 @@
+start_charging:
+  name: Start charging
+  description: Start a charging session on a connector using an RFID tag.
+  target:
+    device:
+      integration: chargeamps_cloud
+  fields:
+    rfid:
+      name: RFID tag
+      description: Tag in hex format. Defaults to the option value or the first active tag on the account.
+      example: A1B2C3D4
+      selector:
+        text:
+    rfid_format:
+      name: RFID format
+      description: Format of the supplied tag.
+      default: Hex
+      selector:
+        select:
+          options:
+            - Hex
+            - Dec
+            - ReverseDec
+    rfid_length:
+      name: RFID length
+      description: Length of the tag in bytes.
+      default: 4
+      selector:
+        select:
+          options:
+            - 4
+            - 7
+            - 10
+
+stop_charging:
+  name: Stop charging
+  description: Stop the charging session on a connector.
+  target:
+    device:
+      integration: chargeamps_cloud
+
+set_mode:
+  name: Set charging mode
+  description: Set the connector mode to Off, On, or Schedule.
+  target:
+    device:
+      integration: chargeamps_cloud
+  fields:
+    mode:
+      name: Mode
+      required: true
+      selector:
+        select:
+          options:
+            - Off
+            - On
+            - Schedule
+
+set_current:
+  name: Set current limit
+  description: Set the maximum charging current for a connector.
+  target:
+    device:
+      integration: chargeamps_cloud
+  fields:
+    current:
+      name: Current
+      description: Maximum current in ampere.
+      required: true
+      example: 16
+      selector:
+        number:
+          min: 6
+          max: 32
+          step: 1
+          unit_of_measurement: A
+
+reboot:
+  name: Reboot charger
+  description: Reboot the charge point.
+  target:
+    device:
+      integration: chargeamps_cloud
+
+refresh:
+  name: Refresh data
+  description: Request an immediate refresh of all Charge Amps data.

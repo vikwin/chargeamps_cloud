@@ -1,0 +1,7 @@
+{
+  "id": "33333333-3333-3333-3333-333333333333",
+  "status": "Online",
+  "connectorStatuses": [
+    {"chargePointId": "33333333-3333-3333-3333-333333333333", "connectorId": 1, "totalConsumptionKwh": 0, "status": "2", "measurements": [], "sessionId": null}
+  ]
+}

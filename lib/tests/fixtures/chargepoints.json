@@ -1,0 +1,17 @@
+[
+  {
+    "id": "22222222-2222-2222-2222-222222222222",
+    "name": "Driveway",
+    "password": null,
+    "type": "Halo",
+    "isLoadbalanced": false,
+    "firmwareVersion": "1.2.3",
+    "hardwareVersion": "Halo 11kW",
+    "ownerReadOnly": false,
+    "ocppVersion": "1.6",
+    "settings": {"id": "22222222-2222-2222-2222-222222222222", "dimmer": "Medium", "downLight": true, "maxCurrent": 16.0},
+    "connectors": [
+      {"chargePointId": "22222222-2222-2222-2222-222222222222", "connectorId": 1, "type": "Charger", "connectorUserId": null}
+    ]
+  }
+]

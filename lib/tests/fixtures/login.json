@@ -1,0 +1,17 @@
+{
+  "message": null,
+  "token": "eyJhbGciOiJub25lIn0.eyJleHAiOjQxMDI0NDQ4MDB9.",
+  "refreshToken": "refresh-token",
+  "user": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "firstName": "Test",
+    "lastName": "User",
+    "email": "test@example.com",
+    "mobile": null,
+    "rfidTags": [
+      {"active": true, "rfid": "A1B2C3D4", "rfidDec": "2712847316", "rfidDecReverse": "..."},
+      {"active": false, "rfid": "FFFFFFFF", "rfidDec": "4294967295", "rfidDecReverse": "..."}
+    ],
+    "userStatus": "Active"
+  }
+}

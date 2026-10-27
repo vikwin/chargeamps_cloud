@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  library:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+      - name: Install
+        run: uv sync --project lib --all-extras
+      - name: Lint
+        run: |
+          uv run --project lib ruff check lib custom_components tests scripts
+          uv run --project lib ruff format --check lib custom_components tests scripts
+      - name: Vendored library is current
+        run: python scripts/sync_lib.py --check
+      - name: Library tests
+        run: uv run --project lib pytest lib/tests -q
+
+  home-assistant:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.13"
+      - name: Create test environment
+        run: |
+          uv venv .venv-ha --python 3.13
+          uv pip install --python .venv-ha/bin/python pytest-homeassistant-custom-component
+      - name: Integration tests
+        run: .venv-ha/bin/python -m pytest tests -q
+
+  hassfest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hacs/action@main
+        with:
+          category: integration

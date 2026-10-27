@@ -1,0 +1,172 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect your Charge Amps account",
+        "description": "Enter the email and password of your Charge Amps account and the API key for that account.",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "api_key": "API key",
+          "organisation_id": "Organisation ID (optional)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reauthenticate Charge Amps",
+        "description": "The credentials for {email} were rejected. Enter the password and API key again.",
+        "data": {
+          "password": "Password",
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "The email, password, or API key was rejected.",
+      "cannot_connect": "Could not reach the Charge Amps API.",
+      "unknown": "Unexpected error.",
+      "no_chargepoints": "No charge points were found for this account."
+    },
+    "abort": {
+      "already_configured": "This account is already configured.",
+      "reauth_successful": "Reauthentication was successful."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Charge Amps options",
+        "data": {
+          "scan_interval": "Poll interval",
+          "rfid": "RFID tag for remote start",
+          "rfid_format": "RFID format",
+          "rfid_length": "RFID length"
+        },
+        "data_description": {
+          "rfid": "Leave empty to use the first active RFID tag on the account.",
+          "rfid_length": "Use auto unless your charger requires a specific tag length."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "online": {
+        "name": "Online"
+      },
+      "car_connected": {
+        "name": "Car connected"
+      },
+      "charging": {
+        "name": "Charging"
+      }
+    },
+    "sensor": {
+      "charger_status": {
+        "name": "Status"
+      },
+      "connector_status": {
+        "name": "Connector status"
+      },
+      "firmware": {
+        "name": "Firmware"
+      },
+      "total_energy": {
+        "name": "Total energy"
+      },
+      "power": {
+        "name": "Power"
+      },
+      "session_energy": {
+        "name": "Session energy"
+      },
+      "current_l1": {
+        "name": "Current L1"
+      },
+      "current_l2": {
+        "name": "Current L2"
+      },
+      "current_l3": {
+        "name": "Current L3"
+      },
+      "voltage_l1": {
+        "name": "Voltage L1"
+      },
+      "voltage_l2": {
+        "name": "Voltage L2"
+      },
+      "voltage_l3": {
+        "name": "Voltage L3"
+      },
+      "session_started": {
+        "name": "Session started"
+      },
+      "session_duration": {
+        "name": "Session duration"
+      },
+      "session_rfid": {
+        "name": "Session RFID"
+      },
+      "last_session_energy": {
+        "name": "Last session energy"
+      },
+      "mode": {
+        "name": "Mode"
+      }
+    },
+    "switch": {
+      "charging_enabled": {
+        "name": "Charging enabled"
+      },
+      "rfid_lock": {
+        "name": "RFID lock"
+      }
+    },
+    "number": {
+      "max_current": {
+        "name": "Maximum current"
+      }
+    },
+    "lock": {
+      "cable_lock": {
+        "name": "Cable lock"
+      }
+    },
+    "button": {
+      "start_charging": {
+        "name": "Start charging"
+      },
+      "stop_charging": {
+        "name": "Stop charging"
+      },
+      "reboot": {
+        "name": "Reboot"
+      }
+    }
+  },
+  "services": {
+    "start_charging": {
+      "name": "Start charging",
+      "description": "Start a charging session on a connector using an RFID tag."
+    },
+    "stop_charging": {
+      "name": "Stop charging",
+      "description": "Stop the charging session on a connector."
+    },
+    "set_mode": {
+      "name": "Set charging mode",
+      "description": "Set the connector mode to Off, On, or Schedule."
+    },
+    "set_current": {
+      "name": "Set current limit",
+      "description": "Set the maximum charging current for a connector."
+    },
+    "reboot": {
+      "name": "Reboot charger",
+      "description": "Reboot the charge point."
+    },
+    "refresh": {
+      "name": "Refresh data",
+      "description": "Request an immediate refresh of all Charge Amps data."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+[tool.uv.workspace]
+members = ["lib"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+extend-exclude = ["custom_components/chargeamps_cloud/chargeamps_cloud"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "ASYNC"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["chargeamps_cloud", "custom_components"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

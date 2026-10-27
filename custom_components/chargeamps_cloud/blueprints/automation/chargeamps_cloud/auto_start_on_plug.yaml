@@ -1,0 +1,43 @@
+blueprint:
+  name: Charge Amps Cloud - authorize a plugged-in car
+  description: >-
+    Starts a charging session when a vehicle is plugged into the charger.
+    Remote start requires an RFID tag in the integration options (or the first
+    active tag on the account) and RFID lock enabled on the connector.
+  domain: automation
+  source_url: https://github.com/vikwin/chargeamps_cloud/blob/main/custom_components/chargeamps_cloud/blueprints/automation/chargeamps_cloud/auto_start_on_plug.yaml
+  input:
+    car_connected_sensor:
+      name: Car connected sensor
+      description: The "Car connected" binary sensor of the connector.
+      selector:
+        entity:
+          domain: binary_sensor
+          device_class: plug
+    start_button:
+      name: Start charging button
+      description: The "Start charging" button of the same connector.
+      selector:
+        entity:
+          domain: button
+    conditions:
+      name: Optional conditions
+      description: Extra conditions that must be true before charging is started.
+      default: []
+      selector:
+        condition:
+
+trigger:
+  - platform: state
+    entity_id: !input car_connected_sensor
+    to: "on"
+
+condition: !input conditions
+
+action:
+  - service: button.press
+    target:
+      entity_id: !input start_button
+
+mode: single
+max_exceeded: silent

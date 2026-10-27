@@ -1,0 +1,9 @@
+{
+  "chargePointId": "22222222-2222-2222-2222-222222222222",
+  "connectorId": 1,
+  "mode": "On",
+  "rfidLock": true,
+  "cableLock": false,
+  "maxCurrent": 16.0,
+  "installationCurrent": 16
+}

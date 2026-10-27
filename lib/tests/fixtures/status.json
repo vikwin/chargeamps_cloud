@@ -1,0 +1,22 @@
+{
+  "id": "22222222-2222-2222-2222-222222222222",
+  "status": "Online",
+  "connectorStatuses": [
+    {
+      "chargePointId": "22222222-2222-2222-2222-222222222222",
+      "connectorId": 1,
+      "totalConsumptionKwh": 5.42,
+      "chargingPowerKw": 7.36,
+      "sessionType": "ThreePhase",
+      "status": "Charging",
+      "measurements": [
+        {"phase": "L1", "current": 10.6, "voltage": 231.0},
+        {"phase": "L2", "current": 10.5, "voltage": 230.0},
+        {"phase": "L3", "current": 10.7, "voltage": 232.0}
+      ],
+      "startTime": "2026-10-27T18:00:00+01:00",
+      "endTime": null,
+      "sessionId": 42
+    }
+  ]
+}
