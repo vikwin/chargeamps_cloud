@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.1 - 2026-10-27
+
+First published release.
+
+- Compatibility with Home Assistant 2026.2 and newer (device registry APIs)
+- Service definitions fixed for hassfest (`device_id` fields)
+- API key request via Charge Amps support documented
+- HACS brand icon, release workflow, security policy, publishing checklist
+
 ## 0.1.0 - 2026-10-27
 
 Initial release.
