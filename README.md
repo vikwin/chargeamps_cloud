@@ -212,6 +212,11 @@ This project is not affiliated with or supported by Charge Amps AB. It uses a
 cloud API that may change without notice. Use it at your own risk and make sure
 your use complies with the Charge Amps terms of service.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md). Release notes are generated from the matching
+section by the release workflow.
+
 ## License
 
 MIT

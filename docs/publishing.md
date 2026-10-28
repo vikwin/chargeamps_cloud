@@ -33,15 +33,28 @@ repository public.
 ## 4. Create a release
 
 The integration version is `custom_components/chargeamps_cloud/manifest.json`
-(`version`) and must match the release tag.
+(`version`) and must match the release tag. Add a matching, non-empty section
+to `CHANGELOG.md` first:
+
+```markdown
+## 0.2.0 - 2026-10-28
+
+### Added
+- ...
+```
+
+Then tag and push:
 
 ```bash
 git tag v0.2.0
 git push origin v0.2.0
 ```
 
-The `Release` workflow creates a full GitHub release (not only a tag) with
-generated release notes. HACS prefers releases but can use the default branch.
+The `Release` workflow extracts that section into the GitHub release body. It
+fails before creating the release if the tag, manifest version, or changelog
+section do not match.
+
+HACS prefers releases but can use the default branch.
 
 ## 5. Install from HACS
 

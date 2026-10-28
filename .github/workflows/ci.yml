@@ -25,6 +25,8 @@ jobs:
           uv run --project lib ruff format --check lib custom_components tests scripts
       - name: Vendored library is current
         run: python scripts/sync_lib.py --check
+      - name: Changelog has release notes for the current version
+        run: python scripts/release_notes.py --check
       - name: Library tests
         run: uv run --project lib pytest lib/tests -q
 
