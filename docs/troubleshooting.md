@@ -3,8 +3,9 @@
 ## Setup fails with "invalid auth"
 
 - Check the email and password.
-- Check the API key. It is required and is not included with this project. If
-  you do not have a key, request one from
+- Check the API key if one is configured. The key is optional; leave it empty to
+  use the portal session.
+- If you do not have a key, request one from
   [Charge Amps support](https://www.chargeamps.com/support/).
 - Use **Reauthenticate** on the integration entry after changing the password or
   key.
@@ -41,6 +42,18 @@ charger mode that starts automatically.
 - The cable may not be fully inserted; check the connector status.
 - The charger may be offline or paused by the vehicle.
 - Check the **Connector status** and **Mode** sensors.
+
+## Portal session
+
+Without an API key the integration signs in through the Charge Amps portal. If
+the portal session expires, the integration logs in again. If the portal login
+fails:
+
+- Verify the account can log in at `https://my.charge.space/`.
+- Check for portal maintenance or changed internal endpoints.
+- Try an API key if you have one; it is the recommended mode.
+
+The portal API is not a public API and may change without notice.
 
 ## Rate limits and polling
 

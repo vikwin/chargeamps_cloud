@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0 - 2026-10-28
+
+- Optional API key; the integration can sign in through the Charge Amps portal
+  session with email and password only
+- Portal-session client with charge point data, sessions, remote start/stop,
+  settings, RFID tags, and reboot
+- Shared coordinator support for both authentication modes
+- Portal session documentation and tests
+
 ## 0.1.1 - 2026-10-27
 
 Follow-up release with publication and compatibility fixes.

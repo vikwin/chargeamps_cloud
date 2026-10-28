@@ -1,8 +1,9 @@
 # Charge Amps Cloud for Home Assistant
 
 An unofficial Home Assistant integration and Python client for Charge Amps
-charge points, using the Charge Amps Cloud API (eAPI v5) with your account
-credentials and your API key.
+charge points. It supports two authentication modes: the Charge Amps Cloud API
+(eAPI v5) with an API key, or the Charge Amps portal session with email and
+password only.
 
 The repository contains two deliverables:
 
@@ -11,9 +12,9 @@ The repository contains two deliverables:
 | `custom_components/chargeamps_cloud/` | Home Assistant integration (HACS compatible) |
 | `lib/` | Standalone Python client, CLI, and tests |
 
-The integration does not contain or distribute any Charge Amps credentials. You
-need your own API key for your Charge Amps account. The key is stored in the
-Home Assistant config entry and redacted from diagnostics.
+The integration does not contain or distribute any Charge Amps credentials.
+Credentials are stored in the Home Assistant config entry and redacted from
+diagnostics.
 
 ## Features
 
@@ -35,9 +36,9 @@ but are not exposed as Home Assistant entities in this version.
 
 - Home Assistant 2025.1 or newer
 - A Charge Amps account (email and password)
-- An API key for that account. If you do not have one, you can request it from
-  [Charge Amps support](https://www.chargeamps.com/support/). The key is not
-  included in this repository.
+- Optional: an API key for that account, which can be requested from
+  [Charge Amps support](https://www.chargeamps.com/support/). Without a key the
+  integration uses the portal session.
 - The charger must be online in the Charge Amps Cloud
 
 ## Installation
@@ -63,10 +64,23 @@ integration** and search for **Charge Amps Cloud**.
 The integration is self-contained; it does not download a package at setup
 time.
 
+## Authentication
+
+The integration supports two modes:
+
+| Mode | Credentials | API | Notes |
+| --- | --- | --- | --- |
+| API key | Email, password, API key | External eAPI v5 | Recommended; stable public interface |
+| Portal session | Email, password | Portal web API (`my.charge.space`) | No API key; the portal API is internal and may change |
+
+Leave the API key empty in the setup form to use the portal session. Enter a key
+to use the external API.
+
 ## Configuration
 
-Enter the email and password of your Charge Amps account and the API key for
-that account. The key is validated during setup.
+Enter the email and password of your Charge Amps account. The API key is
+optional; without it the integration signs in through the portal session. The
+credentials are validated during setup.
 
 ### Options
 

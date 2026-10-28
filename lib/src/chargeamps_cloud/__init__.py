@@ -37,8 +37,9 @@ from .models import (
     StartAuth,
     User,
 )
+from .portal import ChargeAmpsPortalClient
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 __all__ = [
     "API_BASE_URL",
@@ -50,6 +51,7 @@ __all__ = [
     "ChargeAmpsApiError",
     "ChargeAmpsAuthError",
     "ChargeAmpsClient",
+    "ChargeAmpsPortalClient",
     "ChargeAmpsConnectionError",
     "ChargeAmpsError",
     "ChargeAmpsForbiddenError",

@@ -3,20 +3,23 @@
     "step": {
       "user": {
         "title": "Connect your Charge Amps account",
-        "description": "Enter the email and password of your Charge Amps account and the API key for that account. If you do not have a key, request one from Charge Amps support.",
+        "description": "Enter the email and password of your Charge Amps account. Add an API key to use the external API, or leave it empty to sign in through the Charge Amps portal session.",
         "data": {
           "email": "Email",
           "password": "Password",
-          "api_key": "API key",
+          "api_key": "API key (optional)",
           "organisation_id": "Organisation ID (optional)"
+        },
+        "data_description": {
+          "api_key": "Leave empty to use the portal session (no API key). An API key uses the external API and is recommended. You can request a key from Charge Amps support."
         }
       },
       "reauth_confirm": {
         "title": "Reauthenticate Charge Amps",
-        "description": "The credentials for {email} were rejected. Enter the password and API key again.",
+        "description": "The credentials for {email} were rejected. Enter the password and API key again, or leave the key empty to use the portal session.",
         "data": {
           "password": "Password",
-          "api_key": "API key"
+          "api_key": "API key (optional)"
         }
       }
     },

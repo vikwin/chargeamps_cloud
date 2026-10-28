@@ -12,7 +12,13 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .chargeamps_cloud import ChargeAmpsAuthError, ChargeAmpsClient, ChargeAmpsConnectionError, ChargeAmpsError
+from .chargeamps_cloud import (
+    ChargeAmpsAuthError,
+    ChargeAmpsClient,
+    ChargeAmpsConnectionError,
+    ChargeAmpsError,
+    ChargeAmpsPortalClient,
+)
 from .const import (
     CONF_API_KEY,
     CONF_EMAIL,
@@ -63,27 +69,40 @@ SERVICE_REFRESH_SCHEMA = vol.Schema({})
 
 async def async_setup_entry(hass: HomeAssistant, entry: ChargeAmpsConfigEntry) -> bool:
     """Set up Charge Amps Cloud from a config entry."""
-    session = async_get_clientsession(hass)
-    client = ChargeAmpsClient(
-        entry.data[CONF_EMAIL],
-        entry.data[CONF_PASSWORD],
-        entry.data[CONF_API_KEY],
-        session=session,
-        organisation_id=entry.data.get(CONF_ORGANISATION_ID),
-    )
+    api_key = entry.data.get(CONF_API_KEY) or None
+    if api_key:
+        client: ChargeAmpsClient | ChargeAmpsPortalClient = ChargeAmpsClient(
+            entry.data[CONF_EMAIL],
+            entry.data[CONF_PASSWORD],
+            api_key,
+            session=async_get_clientsession(hass),
+            organisation_id=entry.data.get(CONF_ORGANISATION_ID),
+        )
+    else:
+        client = ChargeAmpsPortalClient(
+            entry.data[CONF_EMAIL],
+            entry.data[CONF_PASSWORD],
+        )
     try:
         await client.login()
     except ChargeAmpsAuthError as err:
+        await client.close()
         raise ConfigEntryAuthFailed("Authentication with Charge Amps failed") from err
     except ChargeAmpsConnectionError as err:
+        await client.close()
         raise ConfigEntryNotReady(f"Could not reach Charge Amps: {err}") from err
     except ChargeAmpsError as err:
+        await client.close()
         raise ConfigEntryNotReady(f"Charge Amps API error: {err}") from err
 
     coordinator = ChargeAmpsCoordinator(hass, entry, client)
     entry.runtime_data = coordinator
-    await coordinator.async_load_default_rfid()
-    await coordinator.async_config_entry_first_refresh()
+    try:
+        await coordinator.async_load_default_rfid()
+        await coordinator.async_config_entry_first_refresh()
+    except Exception:
+        await client.close()
+        raise
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
@@ -93,7 +112,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ChargeAmpsConfigEntry) -
 
 async def async_unload_entry(hass: HomeAssistant, entry: ChargeAmpsConfigEntry) -> bool:
     """Unload a config entry."""
+    coordinator = entry.runtime_data
     unloaded = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    if coordinator is not None:
+        await coordinator.client.close()
     if unloaded and not hass.config_entries.async_entries(DOMAIN):
         for service in (
             SERVICE_START_CHARGING,

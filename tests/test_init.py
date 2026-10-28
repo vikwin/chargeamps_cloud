@@ -121,6 +121,9 @@ class FakeClient:
     async def reboot(self, chargepoint_id):
         self.calls.append(("reboot", (chargepoint_id,), {}))
 
+    async def close(self):
+        pass
+
 
 async def test_setup_creates_entities(hass, enable_custom_integrations) -> None:
     entry = MockConfigEntry(
@@ -200,3 +203,23 @@ async def test_services_target_connector(hass, enable_custom_integrations) -> No
 
     await hass.config_entries.async_unload(entry.entry_id)
     await hass.async_block_till_done()
+
+
+async def test_setup_uses_portal_without_api_key(hass, enable_custom_integrations) -> None:
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_EMAIL: "test@example.com", CONF_PASSWORD: "secret", CONF_API_KEY: ""},
+        options={},
+        unique_id="user-1",
+    )
+    entry.add_to_hass(hass)
+    with patch("custom_components.chargeamps_cloud.ChargeAmpsPortalClient", FakeClient):
+        assert await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert entry.state is ConfigEntryState.LOADED
+    assert hass.states.get("sensor.driveway_status").state == "Online"
+
+    await hass.config_entries.async_unload(entry.entry_id)
+    await hass.async_block_till_done()
+    assert entry.state is ConfigEntryState.NOT_LOADED

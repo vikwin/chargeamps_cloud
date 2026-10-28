@@ -70,6 +70,8 @@ class ChargeAmpsClient:
     re-login attempt.
     """
 
+    auth_mode = "api_key"
+
     def __init__(
         self,
         email: str,
@@ -336,6 +338,11 @@ class ChargeAmpsClient:
         if self._user is None:
             raise ChargeAmpsAuthError("Not logged in")
         return await self.get_user(self._user.id) if self._user.id else self._user
+
+    async def get_rfids(self) -> list[RfidTag]:
+        """Return the RFID tags stored on the account."""
+        user = await self.get_current_user()
+        return user.rfid_tags
 
     async def get_default_rfid(self, *, allow_placeholder: bool = True) -> RfidTag | None:
         """Return the first active RFID tag on the account.

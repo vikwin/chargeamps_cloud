@@ -18,6 +18,7 @@ from .chargeamps_cloud import (
     ChargeAmpsClient,
     ChargeAmpsConnectionError,
     ChargeAmpsError,
+    ChargeAmpsPortalClient,
     ChargePoint,
     ChargePointSettings,
     ChargePointStatus,
@@ -65,10 +66,18 @@ class ChargeAmpsData:
 class ChargeAmpsCoordinator(DataUpdateCoordinator[ChargeAmpsData]):
     """Coordinate polling and actions for all charge points of one account."""
 
-    def __init__(self, hass: HomeAssistant, entry: ConfigEntry, client: ChargeAmpsClient) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        client: ChargeAmpsClient | ChargeAmpsPortalClient,
+    ) -> None:
         self.client = client
         self._sessions: dict[str, list[ChargingSession]] = {}
         self._sessions_updated_at: datetime | None = None
+        self._sessions_interval = (
+            timedelta(minutes=2) if getattr(client, "auth_mode", "api_key") == "portal" else SESSIONS_REFRESH_INTERVAL
+        )
         self._session_details: set[int] = set()
         self._ended_sessions: set[int] = set()
         self._previous: dict[tuple[str, int], tuple[int | None, bool, bool]] = {}
@@ -118,6 +127,7 @@ class ChargeAmpsCoordinator(DataUpdateCoordinator[ChargeAmpsData]):
             connector_settings.update(connector_settings_map)
 
         await self._refresh_sessions(chargepoints, statuses)
+        self._enrich_status_from_sessions(statuses)
         for chargepoint_id, status in statuses.items():
             await self._load_active_session_details(chargepoint_id, status)
 
@@ -172,7 +182,7 @@ class ChargeAmpsCoordinator(DataUpdateCoordinator[ChargeAmpsData]):
         self, chargepoints: dict[str, ChargePoint], statuses: dict[str, ChargePointStatus]
     ) -> None:
         now = dt_util.utcnow()
-        if self._sessions_updated_at is not None and now - self._sessions_updated_at < SESSIONS_REFRESH_INTERVAL:
+        if self._sessions_updated_at is not None and now - self._sessions_updated_at < self._sessions_interval:
             return
         for chargepoint_id in chargepoints:
             try:
@@ -181,6 +191,27 @@ class ChargeAmpsCoordinator(DataUpdateCoordinator[ChargeAmpsData]):
                 _LOGGER.warning("Could not fetch sessions for %s: %s", chargepoint_id, err)
                 self._sessions.setdefault(chargepoint_id, [])
         self._sessions_updated_at = now
+
+    def _enrich_status_from_sessions(self, statuses: dict[str, ChargePointStatus]) -> None:
+        """Fill session details that the portal API keeps in the session list."""
+        for chargepoint_id, status in statuses.items():
+            for connector in status.connector_statuses:
+                if connector.session_id is not None:
+                    continue
+                active = next(
+                    (
+                        session
+                        for session in self._sessions.get(chargepoint_id, [])
+                        if session.connector_id == connector.connector_id and session.end_time is None
+                    ),
+                    None,
+                )
+                if active is not None:
+                    connector.session_id = active.id
+                    connector.start_time = active.start_time
+                    connector.end_time = active.end_time
+                    if getattr(self.client, "auth_mode", "api_key") == "portal":
+                        connector.total_consumption_kwh = active.total_consumption_kwh
 
     async def _load_active_session_details(self, chargepoint_id: str, status: ChargePointStatus) -> None:
         sessions = self._sessions.setdefault(chargepoint_id, [])
@@ -269,14 +300,16 @@ class ChargeAmpsCoordinator(DataUpdateCoordinator[ChargeAmpsData]):
         rfid_length: int | None = None,
     ) -> None:
         options = self.config_entry.options
-        tag = rfid or options.get(CONF_RFID) or (self._default_rfid.rfid if self._default_rfid else None)
-        if not tag:
+        tag = rfid or options.get(CONF_RFID)
+        if not tag and getattr(self.client, "auth_mode", "api_key") != "portal":
+            tag = self._default_rfid.rfid if self._default_rfid else None
+        if not tag and getattr(self.client, "auth_mode", "api_key") != "portal":
             raise HomeAssistantError("No RFID tag is configured for remote start")
         try:
             await self.client.remote_start(
                 charge_point_id,
                 connector_id,
-                rfid=tag,
+                rfid=tag or None,
                 rfid_format=rfid_format or options.get(CONF_RFID_FORMAT) or "Hex",
                 rfid_length=rfid_length or _option_int(options.get(CONF_RFID_LENGTH)),
                 allow_placeholder_tag=False,

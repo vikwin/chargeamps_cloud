@@ -1,7 +1,15 @@
 # Python client
 
-`chargeamps-cloud` is an asynchronous client for the Charge Amps Cloud API
-(eAPI v5). It requires an account email, password, and API key.
+`chargeamps-cloud` is an asynchronous client for Charge Amps charge points. It
+supports two authentication modes:
+
+| Client | Credentials | API |
+| --- | --- | --- |
+| `ChargeAmpsClient` | Email, password, API key | External eAPI v5 |
+| `ChargeAmpsPortalClient` | Email, password | Portal session (`my.charge.space`) |
+
+The portal client does not require an API key. The portal API is internal and
+may change, so the API-key client remains the primary interface.
 
 ## Install
 
@@ -15,7 +23,7 @@ uv run --project lib python -c "import chargeamps_cloud; print(chargeamps_cloud.
 Or from a release wheel:
 
 ```bash
-pip install chargeamps_cloud-0.1.1-py3-none-any.whl
+pip install chargeamps_cloud-0.2.0-py3-none-any.whl
 ```
 
 ## Usage
@@ -42,8 +50,29 @@ async def main() -> None:
 asyncio.run(main())
 ```
 
-The client refreshes its bearer token automatically. A `401` response triggers
-one re-login attempt before the error is raised.
+The API-key client refreshes its bearer token automatically. A `401` response
+triggers one re-login attempt before the error is raised.
+
+Portal session:
+
+```python
+import asyncio
+
+from chargeamps_cloud import ChargeAmpsPortalClient
+
+
+async def main() -> None:
+    async with ChargeAmpsPortalClient("you@example.com", "password") as client:
+        chargepoints = await client.get_chargepoints()
+        status = await client.get_chargepoint_status(chargepoints[0].id)
+        print(status.status)
+
+
+asyncio.run(main())
+```
+
+The portal client keeps a cookie session, obtains a CSRF token for unsafe
+requests, and logs in again when the session expires.
 
 ## Charge points
 
@@ -129,12 +158,34 @@ from chargeamps_cloud import (
 `ChargeAmpsRateLimitError.retry_after` contains the `Retry-After` header when
 the API provides it.
 
+## Portal limitations
+
+The portal client implements the methods used by the Home Assistant integration:
+charge points, status, settings, connector settings, sessions, RFID tags,
+remote start/stop, and reboot. Schedule management, callbacks, and the
+organisation/partner endpoints remain available only in the API-key client.
+
+## Authentication selection
+
+The HA integration and CLI use `ChargeAmpsClient` when an API key is supplied
+and `ChargeAmpsPortalClient` when the key is empty:
+
+```python
+from chargeamps_cloud import ChargeAmpsClient, ChargeAmpsPortalClient
+
+client = (
+    ChargeAmpsClient(email, password, api_key)
+    if api_key
+    else ChargeAmpsPortalClient(email, password)
+)
+```
+
 ## CLI
 
 The CLI reads `.env` from the current directory (see `.env.example`):
 
 ```bash
-uv run --project lib chargeamps whoami
+uv run --project lib chargeamps whoami          # API key or portal, depending on .env
 uv run --project lib chargeamps chargepoints
 uv run --project lib chargeamps status
 uv run --project lib chargeamps sessions --days 7

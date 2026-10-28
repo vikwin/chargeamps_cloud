@@ -15,6 +15,7 @@ from .client import ChargeAmpsClient
 from .const import API_BASE_URL, DEFAULT_RFID_FORMAT
 from .exceptions import ChargeAmpsError
 from .models import ChargePoint, ChargingSession
+from .portal import ChargeAmpsPortalClient
 
 DEFAULT_ENV_FILE = Path(".env")
 
@@ -38,18 +39,20 @@ def _env(name: str, default: str | None = None) -> str | None:
     return value if value not in (None, "") else default
 
 
-def _client(args: argparse.Namespace) -> ChargeAmpsClient:
+def _client(args: argparse.Namespace) -> ChargeAmpsClient | ChargeAmpsPortalClient:
     email = _env("CHARGEAMPS_EMAIL")
     password = _env("CHARGEAMPS_PASSWORD")
     api_key = _env("CHARGEAMPS_API_KEY")
-    if not email or not password or not api_key:
-        raise SystemExit("CHARGEAMPS_EMAIL, CHARGEAMPS_PASSWORD and CHARGEAMPS_API_KEY must be set (see .env.example)")
-    return ChargeAmpsClient(
-        email,
-        password,
-        api_key,
-        base_url=args.base_url or _env("CHARGEAMPS_BASE_URL", API_BASE_URL),
-    )
+    if not email or not password:
+        raise SystemExit("CHARGEAMPS_EMAIL and CHARGEAMPS_PASSWORD must be set (see .env.example)")
+    if api_key:
+        return ChargeAmpsClient(
+            email,
+            password,
+            api_key,
+            base_url=args.base_url or _env("CHARGEAMPS_BASE_URL", API_BASE_URL),
+        )
+    return ChargeAmpsPortalClient(email, password)
 
 
 def _as_json(value: Any) -> str:
@@ -92,13 +95,14 @@ def _connector_id(chargepoint: ChargePoint, value: int | None) -> int:
 async def cmd_whoami(args: argparse.Namespace) -> None:
     async with _client(args) as client:
         user = await client.get_current_user()
+        tags = await client.get_rfids()
         if args.json:
-            print(_as_json(user))
+            print(_as_json({"user": user, "rfid_tags": tags}))
         else:
             print(f"User: {user.name} <{user.email}>")
             print(f"ID:   {user.id}")
             print("RFID tags:")
-            for tag in user.rfid_tags:
+            for tag in tags:
                 print(f"  - {tag.rfid}  dec={tag.rfid_dec} reverse={tag.rfid_dec_reverse} active={tag.active}")
 
 
@@ -166,14 +170,14 @@ async def cmd_sessions(args: argparse.Namespace) -> None:
 
 async def cmd_rfids(args: argparse.Namespace) -> None:
     async with _client(args) as client:
-        user = await client.get_current_user()
+        tags = await client.get_rfids()
         if args.json:
-            print(_as_json(user.rfid_tags))
+            print(_as_json(tags))
             return
-        if not user.rfid_tags:
+        if not tags:
             print("No RFID tags on this account; remote start needs an explicit tag")
             return
-        for tag in user.rfid_tags:
+        for tag in tags:
             print(f"{tag.rfid}  dec={tag.rfid_dec}  reverse={tag.rfid_dec_reverse}  active={tag.active}")
 
 

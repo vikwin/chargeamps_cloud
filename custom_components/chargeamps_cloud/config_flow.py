@@ -11,7 +11,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import selector
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .chargeamps_cloud import ChargeAmpsAuthError, ChargeAmpsClient, ChargeAmpsConnectionError, ChargeAmpsError
+from .chargeamps_cloud import (
+    ChargeAmpsAuthError,
+    ChargeAmpsClient,
+    ChargeAmpsConnectionError,
+    ChargeAmpsError,
+    ChargeAmpsPortalClient,
+)
 from .const import (
     CONF_API_KEY,
     CONF_EMAIL,
@@ -42,7 +48,7 @@ def _credentials_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             vol.Required(CONF_PASSWORD): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
             ),
-            vol.Required(CONF_API_KEY): selector.TextSelector(
+            vol.Optional(CONF_API_KEY, default=""): selector.TextSelector(
                 selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
             ),
             vol.Optional(CONF_ORGANISATION_ID, default=defaults.get(CONF_ORGANISATION_ID, "")): selector.TextSelector(),
@@ -52,21 +58,31 @@ def _credentials_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
 
 async def _validate(hass: HomeAssistant, data: dict[str, Any]) -> tuple[str, str]:
     """Validate credentials and return ``(title, unique_id)``."""
-    client = ChargeAmpsClient(
-        data[CONF_EMAIL],
-        data[CONF_PASSWORD],
-        data[CONF_API_KEY],
-        session=async_get_clientsession(hass),
-        organisation_id=data.get(CONF_ORGANISATION_ID) or None,
-    )
-    await client.login()
-    chargepoints = await client.get_chargepoints()
-    if not chargepoints:
-        raise ValueError("no_chargepoints")
-    user = client.user
-    unique_id = user.id if user and user.id else data[CONF_EMAIL].lower()
-    title = user.name if user and user.name else data[CONF_EMAIL]
-    return title, unique_id
+    api_key = (data.get(CONF_API_KEY) or "").strip()
+    client: ChargeAmpsClient | ChargeAmpsPortalClient
+    if api_key:
+        data[CONF_API_KEY] = api_key
+        client = ChargeAmpsClient(
+            data[CONF_EMAIL],
+            data[CONF_PASSWORD],
+            api_key,
+            session=async_get_clientsession(hass),
+            organisation_id=data.get(CONF_ORGANISATION_ID) or None,
+        )
+    else:
+        data[CONF_API_KEY] = ""
+        client = ChargeAmpsPortalClient(data[CONF_EMAIL], data[CONF_PASSWORD])
+    try:
+        await client.login()
+        chargepoints = await client.get_chargepoints()
+        if not chargepoints:
+            raise ValueError("no_chargepoints")
+        user = client.user
+        unique_id = user.id if user and user.id else data[CONF_EMAIL].lower()
+        title = user.name if user and user.name else data[CONF_EMAIL]
+        return title, unique_id
+    finally:
+        await client.close()
 
 
 class ChargeAmpsConfigFlow(ConfigFlow, domain=DOMAIN):
@@ -107,7 +123,7 @@ class ChargeAmpsConfigFlow(ConfigFlow, domain=DOMAIN):
             data = {
                 **entry.data,
                 CONF_PASSWORD: user_input[CONF_PASSWORD],
-                CONF_API_KEY: user_input[CONF_API_KEY],
+                CONF_API_KEY: (user_input.get(CONF_API_KEY) or "").strip(),
             }
             try:
                 title, _unique_id = await _validate(self.hass, data)
@@ -130,7 +146,7 @@ class ChargeAmpsConfigFlow(ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_PASSWORD): selector.TextSelector(
                         selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
                     ),
-                    vol.Required(CONF_API_KEY): selector.TextSelector(
+                    vol.Optional(CONF_API_KEY, default=""): selector.TextSelector(
                         selector.TextSelectorConfig(type=selector.TextSelectorType.PASSWORD)
                     ),
                 }

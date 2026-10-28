@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/vikwin/chargeamps_cloud/issues",
   "loggers": ["chargeamps_cloud", "custom_components.chargeamps_cloud"],
   "requirements": [],
-  "version": "0.1.1"
+  "version": "0.2.0"
 }

@@ -36,8 +36,8 @@ The integration version is `custom_components/chargeamps_cloud/manifest.json`
 (`version`) and must match the release tag.
 
 ```bash
-git tag v0.1.1
-git push origin v0.1.1
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
 The `Release` workflow creates a full GitHub release (not only a tag) with
