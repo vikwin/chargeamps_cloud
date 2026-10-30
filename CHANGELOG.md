@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Release notes are generated from the matching section below.
 
+## 0.3.0 - 2026-10-30
+
+### Added
+
+- Session type sensor (`OnePhase`, `ThreePhase`, `Schuko`)
+- Last completed session: start time, end time, duration, and RFID tag
+- Tests for the new session sensors in both authentication modes
+
+### Changed
+
+- Version bumped to 0.3.0
+
 ## 0.2.0 - 2026-10-28
 
 ### Added

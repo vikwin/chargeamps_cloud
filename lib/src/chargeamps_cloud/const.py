@@ -6,7 +6,7 @@ API_BASE_URL = "https://eapi.charge.space"
 API_VERSION = "v5"
 
 DEFAULT_TIMEOUT = 30
-DEFAULT_USER_AGENT = "chargeamps-cloud/0.2.0"
+DEFAULT_USER_AGENT = "chargeamps-cloud/0.3.0"
 TOKEN_REFRESH_MARGIN = 120
 
 #: Placeholder tag used when the account has no RFID tag and the caller

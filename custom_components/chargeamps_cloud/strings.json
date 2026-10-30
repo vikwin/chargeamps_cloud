@@ -109,8 +109,23 @@
       "session_rfid": {
         "name": "Session RFID"
       },
+      "session_type": {
+        "name": "Session type"
+      },
       "last_session_energy": {
         "name": "Last session energy"
+      },
+      "last_session_started": {
+        "name": "Last session started"
+      },
+      "last_session_ended": {
+        "name": "Last session ended"
+      },
+      "last_session_duration": {
+        "name": "Last session duration"
+      },
+      "last_session_rfid": {
+        "name": "Last session RFID"
       },
       "mode": {
         "name": "Mode"

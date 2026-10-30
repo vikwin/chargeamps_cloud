@@ -23,7 +23,7 @@ uv run --project lib python -c "import chargeamps_cloud; print(chargeamps_cloud.
 Or from a release wheel:
 
 ```bash
-pip install chargeamps_cloud-0.2.0-py3-none-any.whl
+pip install chargeamps_cloud-0.3.0-py3-none-any.whl
 ```
 
 ## Usage

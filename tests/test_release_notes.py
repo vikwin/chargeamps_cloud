@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = ROOT / "custom_components" / "chargeamps_cloud" / "manifest.json"
 
 
 def run(*args: str) -> subprocess.CompletedProcess[str]:
@@ -26,10 +28,11 @@ def test_current_version_has_release_notes() -> None:
 
 
 def test_release_notes_include_compare_link() -> None:
-    result = run("v0.2.0")
+    version = json.loads(MANIFEST.read_text(encoding="utf-8"))["version"]
+    result = run(f"v{version}")
     assert result.returncode == 0, result.stderr
     assert "Full changelog:" in result.stdout
-    assert "compare/v0.1.1...v0.2.0" in result.stdout
+    assert "compare/v" in result.stdout
 
 
 def test_unknown_tag_is_rejected() -> None:

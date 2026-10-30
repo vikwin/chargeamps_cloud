@@ -37,7 +37,7 @@ The integration version is `custom_components/chargeamps_cloud/manifest.json`
 to `CHANGELOG.md` first:
 
 ```markdown
-## 0.2.0 - 2026-10-28
+## 0.3.0 - 2026-10-28
 
 ### Added
 - ...
@@ -46,8 +46,8 @@ to `CHANGELOG.md` first:
 Then tag and push:
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
 The `Release` workflow extracts that section into the GitHub release body. It

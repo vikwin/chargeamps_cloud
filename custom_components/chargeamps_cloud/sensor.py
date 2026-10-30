@@ -27,6 +27,7 @@ from .chargeamps_cloud.const import (
     CONNECTOR_MODE_OPTIONS,
     CONNECTOR_STATUS_OPTIONS,
     ONLINE_STATUS_OPTIONS,
+    SESSION_TYPE_OPTIONS,
 )
 from .const import DOMAIN
 from .coordinator import ChargeAmpsCoordinator
@@ -56,7 +57,12 @@ async def async_setup_entry(
                     ChargeAmpsSessionStartedSensor(coordinator, chargepoint.id, connector_id),
                     ChargeAmpsSessionDurationSensor(coordinator, chargepoint.id, connector_id),
                     ChargeAmpsSessionRfidSensor(coordinator, chargepoint.id, connector_id),
+                    ChargeAmpsSessionTypeSensor(coordinator, chargepoint.id, connector_id),
                     ChargeAmpsLastSessionEnergySensor(coordinator, chargepoint.id, connector_id),
+                    ChargeAmpsLastSessionStartedSensor(coordinator, chargepoint.id, connector_id),
+                    ChargeAmpsLastSessionEndedSensor(coordinator, chargepoint.id, connector_id),
+                    ChargeAmpsLastSessionDurationSensor(coordinator, chargepoint.id, connector_id),
+                    ChargeAmpsLastSessionRfidSensor(coordinator, chargepoint.id, connector_id),
                     ChargeAmpsModeSensor(coordinator, chargepoint.id, connector_id),
                 ]
             )
@@ -151,6 +157,9 @@ class _ConnectorSensor(ChargeAmpsConnectorEntity, SensorEntity):
             if session.id == status.session_id:
                 return session
         return None
+
+    def _last_session(self) -> ChargingSession | None:
+        return self.coordinator.data.last_sessions.get((self._chargepoint_id, self._connector_id))
 
 
 class ChargeAmpsPowerSensor(_ConnectorSensor):
@@ -298,6 +307,25 @@ class ChargeAmpsSessionRfidSensor(_ConnectorSensor):
         return session.rfid if session else None
 
 
+class ChargeAmpsSessionTypeSensor(_ConnectorSensor):
+    """Session type reported by the charger (one phase, three phase, Schuko)."""
+
+    _attr_translation_key = "session_type"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = list(SESSION_TYPE_OPTIONS)
+
+    def __init__(self, coordinator: ChargeAmpsCoordinator, chargepoint_id: str, connector_id: int) -> None:
+        super().__init__(coordinator, chargepoint_id, connector_id)
+        self._attr_unique_id = f"{DOMAIN}_{chargepoint_id}_{connector_id}_session_type"
+
+    @property
+    def native_value(self) -> str | None:
+        status = self.connector_status
+        if status is None or status.session_type not in SESSION_TYPE_OPTIONS:
+            return None
+        return status.session_type
+
+
 class ChargeAmpsLastSessionEnergySensor(_ConnectorSensor):
     """Energy of the last completed session."""
 
@@ -314,6 +342,76 @@ class ChargeAmpsLastSessionEnergySensor(_ConnectorSensor):
     def native_value(self) -> float | None:
         session = self.coordinator.data.last_sessions.get((self._chargepoint_id, self._connector_id))
         return round(session.total_consumption_kwh, 2) if session else None
+
+
+class ChargeAmpsLastSessionStartedSensor(_ConnectorSensor):
+    """Start time of the last completed session."""
+
+    _attr_translation_key = "last_session_started"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(self, coordinator: ChargeAmpsCoordinator, chargepoint_id: str, connector_id: int) -> None:
+        super().__init__(coordinator, chargepoint_id, connector_id)
+        self._attr_unique_id = f"{DOMAIN}_{chargepoint_id}_{connector_id}_last_session_started"
+
+    @property
+    def native_value(self) -> datetime | None:
+        session = self._last_session()
+        return session.start_time if session else None
+
+
+class ChargeAmpsLastSessionEndedSensor(_ConnectorSensor):
+    """End time of the last completed session."""
+
+    _attr_translation_key = "last_session_ended"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(self, coordinator: ChargeAmpsCoordinator, chargepoint_id: str, connector_id: int) -> None:
+        super().__init__(coordinator, chargepoint_id, connector_id)
+        self._attr_unique_id = f"{DOMAIN}_{chargepoint_id}_{connector_id}_last_session_ended"
+
+    @property
+    def native_value(self) -> datetime | None:
+        session = self._last_session()
+        return session.end_time if session else None
+
+
+class ChargeAmpsLastSessionDurationSensor(_ConnectorSensor):
+    """Duration of the last completed session."""
+
+    _attr_translation_key = "last_session_duration"
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = UnitOfTime.SECONDS
+    _attr_suggested_display_precision = 0
+
+    def __init__(self, coordinator: ChargeAmpsCoordinator, chargepoint_id: str, connector_id: int) -> None:
+        super().__init__(coordinator, chargepoint_id, connector_id)
+        self._attr_unique_id = f"{DOMAIN}_{chargepoint_id}_{connector_id}_last_session_duration"
+
+    @property
+    def native_value(self) -> int | None:
+        session = self._last_session()
+        if session is None or session.start_time is None or session.end_time is None:
+            return None
+        return max(0, int((session.end_time - session.start_time).total_seconds()))
+
+
+class ChargeAmpsLastSessionRfidSensor(_ConnectorSensor):
+    """RFID tag of the last completed session."""
+
+    _attr_translation_key = "last_session_rfid"
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_icon = "mdi:card-account-details"
+
+    def __init__(self, coordinator: ChargeAmpsCoordinator, chargepoint_id: str, connector_id: int) -> None:
+        super().__init__(coordinator, chargepoint_id, connector_id)
+        self._attr_unique_id = f"{DOMAIN}_{chargepoint_id}_{connector_id}_last_session_rfid"
+
+    @property
+    def native_value(self) -> str | None:
+        session = self._last_session()
+        return session.rfid if session else None
 
 
 class ChargeAmpsModeSensor(_ConnectorSensor):

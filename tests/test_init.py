@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 from homeassistant.config_entries import ConfigEntryState
@@ -24,6 +24,8 @@ from custom_components.chargeamps_cloud.const import CONF_API_KEY, CONF_EMAIL, C
 
 CHARGE_POINT_ID = "cp-1"
 START = datetime(2026, 10, 27, 18, 0, tzinfo=UTC)
+LAST_START = START - timedelta(hours=2)
+LAST_END = START - timedelta(hours=1)
 
 
 class FakeClient:
@@ -73,6 +75,15 @@ class FakeClient:
             start_time=START,
             total_consumption_kwh=5.42,
         )
+        self.completed_session = ChargingSession(
+            id=41,
+            charge_point_id=CHARGE_POINT_ID,
+            connector_id=1,
+            rfid="04BBEB1A267380",
+            start_time=LAST_START,
+            end_time=LAST_END,
+            total_consumption_kwh=3.21,
+        )
         self.settings = ChargePointSettings(id=CHARGE_POINT_ID, dimmer="Medium", max_current=16)
         self.connector_settings = ConnectorSettings(
             charge_point_id=CHARGE_POINT_ID,
@@ -101,10 +112,10 @@ class FakeClient:
         return self.connector_settings
 
     async def get_charging_sessions(self, chargepoint_id, **kwargs):
-        return [self.session]
+        return [self.completed_session, self.session]
 
     async def get_charging_session(self, chargepoint_id, session_id):
-        return self.session
+        return self.completed_session if session_id == 41 else self.session
 
     async def get_default_rfid(self, allow_placeholder=True):
         return self.user.rfid_tags[0]
@@ -146,6 +157,12 @@ async def test_setup_creates_entities(hass, enable_custom_integrations) -> None:
     assert hass.states.get("sensor.driveway_charger_current_l1").state == "10.6"
     assert hass.states.get("sensor.driveway_charger_voltage_l3").state == "232"
     assert hass.states.get("sensor.driveway_charger_session_rfid").state == "A1B2C3D4"
+    assert hass.states.get("sensor.driveway_charger_session_type").state == "ThreePhase"
+    assert hass.states.get("sensor.driveway_charger_last_session_started").state.startswith("2026-10-27T16:00:00")
+    assert hass.states.get("sensor.driveway_charger_last_session_ended").state.startswith("2026-10-27T17:00:00")
+    assert hass.states.get("sensor.driveway_charger_last_session_duration").state == "3600"
+    assert hass.states.get("sensor.driveway_charger_last_session_rfid").state == "04BBEB1A267380"
+    assert hass.states.get("sensor.driveway_charger_last_session_energy").state == "3.21"
     assert hass.states.get("switch.driveway_charger_charging_enabled").state == "on"
     assert hass.states.get("switch.driveway_charger_rfid_lock").state == "on"
     assert hass.states.get("number.driveway_charger_maximum_current").state == "16"

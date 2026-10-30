@@ -39,7 +39,7 @@ from .models import (
 )
 from .portal import ChargeAmpsPortalClient
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 __all__ = [
     "API_BASE_URL",

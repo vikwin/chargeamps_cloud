@@ -95,6 +95,7 @@ async def test_portal_login_and_chargepoint(api: Any) -> None:
         assert connector.is_plugged_in is True
         assert connector.power_w == 7346.0
         assert connector.total_consumption_kwh == 5.42
+        assert connector.session_type == "ThreePhase"
 
         settings = await client.get_connector_settings("cp-1", 1)
         assert settings.mode == "On"

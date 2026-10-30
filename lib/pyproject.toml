@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "chargeamps-cloud"
-version = "0.2.0"
+version = "0.3.0"
 description = "Asynchronous Python client for the Charge Amps Cloud API (eAPI v5)"
 readme = "README.md"
 requires-python = ">=3.11"

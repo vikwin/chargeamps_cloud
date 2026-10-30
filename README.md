@@ -120,9 +120,13 @@ Each charge point becomes a device; each connector becomes a child device.
 | Session energy | sensor (kWh) |
 | Current L1 / L2 / L3 | sensor (A) |
 | Voltage L1 / L2 / L3 | sensor (V) |
+| Session type | enum sensor (`OnePhase`, `ThreePhase`, `Schuko`) |
 | Session started | timestamp sensor |
 | Session duration | duration sensor |
 | Session RFID | diagnostic sensor |
+| Last session started / ended | timestamp sensors |
+| Last session duration | duration sensor |
+| Last session RFID | diagnostic sensor |
 | Last session energy | sensor (kWh) |
 | Mode | diagnostic sensor (`Off` / `On` / `Schedule`) |
 | Charging enabled | switch |
